@@ -1584,6 +1584,16 @@ extern (C++) class VarDeclaration : Declaration
         {
             if (!fdv.closureVars.contains(this))
                 fdv.closureVars.push(this);
+
+            Scope* csc = sc;
+            while(parent != csc.parent && csc !is null) {
+                FuncDeclaration fdadd = csc.parent.isFuncDeclaration();
+                if(fdadd) {
+                    if(!fdadd.capturedVars.contains(this))
+                        fdadd.capturedVars.push(this);
+                }
+                csc = csc.enclosing;
+            }
         }
 
         //printf("fdthis is %s\n", fdthis.toChars());

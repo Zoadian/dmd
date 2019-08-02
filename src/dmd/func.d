@@ -309,6 +309,7 @@ extern (C++) class FuncDeclaration : Declaration
 
     /// local variables in this function which are referenced by nested functions
     VarDeclarations closureVars;
+    VarDeclarations capturedVars;
     /// Sibling nested functions which called this one
     FuncDeclarations siblingCallers;
 

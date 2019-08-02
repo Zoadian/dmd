@@ -144,6 +144,7 @@ shared static this()
         "isZeroInit",
         "getTargetInfo",
         "getLocation",
+        "getCaptures",
     ];
 
     traitsStringTable._init(names.length);
@@ -1878,6 +1879,29 @@ Lnext:
         exps.data[0] = new StringExp(e.loc, cast(void*)s.loc.filename, strlen(s.loc.filename));
         exps.data[1] = new IntegerExp(e.loc, s.loc.linnum,Type.tint32);
         exps.data[2] = new IntegerExp(e.loc, s.loc.charnum,Type.tint32);
+        auto tup = new TupleExp(e.loc, exps);
+        return tup.expressionSemantic(sc);
+    }
+    if (e.ident == Id.getCaptures)
+    {
+        if (dim != 1)
+            return dimError(1);
+
+        FuncDeclaration fd;
+        TypeFunction tf = toTypeFunction((*e.args)[0], fd);
+
+        if (!tf || !fd)
+        {
+            e.error("first argument is not a function");
+            return new ErrorExp();
+        }
+
+        auto exps = new Expressions();
+        foreach(cv; fd.capturedVars) {
+            if(cv) {
+                exps.push(new DsymbolExp(Loc.initial, cv.toAlias(), false));
+            }
+        }
         auto tup = new TupleExp(e.loc, exps);
         return tup.expressionSemantic(sc);
     }
